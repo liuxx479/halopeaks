@@ -68,5 +68,5 @@ def halo_particles(IDsnap_id):
 	### test on laptop
 	#halo_snap.write('snapshots_amiga/snapshot_%03d'%(snap_id), files = len(snap_fn_arr))
 
-pool.map(halo_particles, [[ID, snap_id] for ID in ID_arr, snap_id in snap_id_arr])
+pool.map(halo_particles, [[ID, snap_id] for ID in ID_arr for snap_id in snap_id_arr])
 
