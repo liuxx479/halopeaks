@@ -28,6 +28,17 @@ def genamigatxt(halo_fn):
 
 pool = MPIPool()
 
+def halo_ID_position_fcn(ID_amiga):
+	def ihalo_ID_position_fcn(snap_fn):
+		print snap_fn
+		snaps_gadget = Gadget2Snapshot.open(snap_fn)
+		ID_gadget = snaps_gadget.getID() 
+		idx = where(in1d (ID_gadget, ID_amiga, assume_unique=1) == True)[0]
+		ID_HaloParticles = ID_gadget[idx]
+		Positions_HaloParticles = snaps_gadget.getPositions()[idx] 
+		return ID_HaloParticles, Positions_HaloParticles
+	return ihalo_ID_position_fcn
+
 def halo_particles(IDsnap_id):
 	'''
 	input: 
@@ -51,20 +62,21 @@ def halo_particles(IDsnap_id):
 	
 	#txt_amiga = concatenate(array(pool.map(genamigatxt, halo_fn_arr)), axis = 0).T
 	ens = Ensemble.fromfilelist(halo_fn_arr)
+	if (pool is not None) and not(pool.is_master()):
+		pool.wait()
+		sys.exit(0)
 	ens.load(genamigatxt)
 	txt_amiga = concatenate(array(ens.data), axis = 0).T
-	ID_amiga = txt_amiga[0][txt_amiga[1]==1]
+	ID_amiga = txt_amiga[0][txt_amiga[1]==1]	
 	
-	def ihalo_ID_position(snap_fn):
-		print snap_fn
-		snaps_gadget = Gadget2Snapshot.open(snap_fn)
-		ID_gadget = snaps_gadget.getID() 
-		idx = where(in1d (ID_gadget, ID_amiga, assume_unique=1) == True)[0]
-		ID_HaloParticles = ID_gadget[idx]
-		Positions_HaloParticles = snaps_gadget.getPositions()[idx] 
-		return ID_HaloParticles, Positions_HaloParticles
+	ihalo_ID_position_fcn = halo_ID_position_fcn(ID_amiga)
+	ens2 = Ensemble.fromfilelist(snap_fn_arr)
+	if (pool is not None) and not(pool.is_master()):
+		pool.wait()
+		sys.exit(0)
+	ens2.load(ihalo_ID_position_fcn)
+	halo_ID_position = ens2.data
 	
-	halo_ID_position = pool.map(ihalo_ID_position, snap_fn_arr)
 	halo_ID = concatenate([halo_ID_position[i][0] for i in range(len(halo_ID_position))])
 	halo_position = concatenate([halo_ID_position[i][1] for i in range(len(halo_ID_position))], axis=0)
 	
