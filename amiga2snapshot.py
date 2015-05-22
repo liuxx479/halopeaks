@@ -65,7 +65,7 @@ def halo_particles(IDsnap_id):
 	if (pool is not None) and not(pool.is_master()):
 		pool.wait()
 		sys.exit(0)
-	ens.load(genamigatxt)
+	ens.load(genamigatxt, pool=pool)
 	txt_amiga = concatenate(array(ens.data), axis = 0).T
 	ID_amiga = txt_amiga[0][txt_amiga[1]==1]	
 	
@@ -74,7 +74,7 @@ def halo_particles(IDsnap_id):
 	if (pool is not None) and not(pool.is_master()):
 		pool.wait()
 		sys.exit(0)
-	ens2.load(ihalo_ID_position_fcn)
+	ens2.load(ihalo_ID_position_fcn, pool=pool)
 	halo_ID_position = ens2.data
 	
 	halo_ID = concatenate([halo_ID_position[i][0] for i in range(len(halo_ID_position))])
