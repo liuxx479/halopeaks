@@ -82,8 +82,8 @@ def halo_particles(IDsnap_id):
 	
 	halo_snap = Gadget2Snapshot()
 	hg = Gadget2Snapshot.open(snap_fn_arr[0]).header #header_gadget
+	halo_snap.setPositions(array(halo_position)*Mpc)	
 	halo_snap.setHeaderInfo(Om0=hg['Om0'], Ode0=hg['Ode0'], w0=hg['w0'], wa=hg['wa'], h=hg['h'], redshift=hg['redshift'], box_size=hg['box_size'])
-	halo_snap.setPositions(array(halo_position)*Mpc)
 	
 	halo_snap.write(os.path.join(storage, cosmo_id, geometry_id, ic_id, 'snapshots_amiga/snapshot_%03d.*'%(snap_id)), files = len(snap_fn_arr))
 
