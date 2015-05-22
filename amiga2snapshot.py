@@ -15,6 +15,7 @@ from emcee.utils import MPIPool
 from lenstools import Ensemble
 
 os.system('ml intel/14.0.1.106; ml mvapich2/2.0b')
+
 home = '/work/02977/jialiu/lenstools_home/'
 storage = '/scratch/02977/jialiu/lenstools_storage/'
 ID_arr = genfromtxt(os.path.join(home, 'realizations.txt'), dtype=str)
@@ -65,9 +66,10 @@ def halo_particles(IDsnap_id):
 	#snap_fn_arr = glob.glob('snapshot_060.*')
 	
 	##### read all the amiga particle files #########
-	ens = Ensemble.fromfilelist(halo_fn_arr)	
-	ens.load(genamigatxt, pool=pool)
-	txt_amiga = concatenate(array(ens.data), axis = 0).T
+	#ens = Ensemble.fromfilelist(halo_fn_arr)	
+	#ens.load(genamigatxt, pool=pool)
+	#txt_amiga = concatenate(array(ens.data), axis = 0).T
+	txt_amiga = concatenate(array(map(genamigatxt, halo_fn_arr)), axis = 0).T
 	ID_amiga = txt_amiga[0][txt_amiga[1]==1]	
 	
 	##### find all the halo particles in gadget ########
@@ -79,10 +81,10 @@ def halo_particles(IDsnap_id):
 		ID_HaloParticles = ID_gadget[idx]
 		Positions_HaloParticles = snaps_gadget.getPositions()[idx] 
 		return ID_HaloParticles, Positions_HaloParticles
-	#ihalo_ID_position_fcn = halo_ID_position_fcn(ID_amiga)
-	ens2 = Ensemble.fromfilelist(snap_fn_arr)	
-	ens2.load(ihalo_ID_position_fcn, pool=pool)
-	halo_ID_position = ens2.data
+	#ens2 = Ensemble.fromfilelist(snap_fn_arr)	
+	#ens2.load(ihalo_ID_position_fcn, pool=pool)
+	#halo_ID_position = ens2.data
+	halo_ID_position = map(ihalo_ID_position_fcn, snap_fn_arr)
 	
 	halo_ID = concatenate([halo_ID_position[i][0] for i in range(len(halo_ID_position))])
 	halo_position = concatenate([halo_ID_position[i][1] for i in range(len(halo_ID_position))], axis=0)
@@ -101,5 +103,5 @@ def halo_particles(IDsnap_id):
 
 
 print 'start job'
-map(halo_particles, [[ID, snap_id] for ID in ID_arr for snap_id in snap_id_arr])
+pool.map(halo_particles, [[ID, snap_id] for ID in ID_arr for snap_id in snap_id_arr])
 pool.close()
