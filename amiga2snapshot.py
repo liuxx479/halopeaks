@@ -13,6 +13,7 @@ from lenstools.simulations import Gadget2Snapshot
 from astropy.units import Mpc,m,s
 from emcee.utils import MPIPool
 
+os.system('ml intel/14.0.1.106; ml mvapich2/2.0b')
 home = '/work/02977/jialiu/lenstools_home/'
 storage = '/scratch/02977/jialiu/lenstools_storage/'
 ID_arr = genfromtxt(os.path.join(home, 'realizations.txt'), dtype=str)
