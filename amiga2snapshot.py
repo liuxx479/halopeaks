@@ -22,7 +22,6 @@ snap_id_arr = (60,)#range(61)
 #ID = 'Om0.300_Ol0.700|512b240|ic1'
 
 genamigatxt = lambda halo_fn: genfromtxt(halo_fn, skiprows=2)
-
 pool = MPIPool()
 
 def halo_particles(IDsnap_id):
@@ -48,7 +47,8 @@ def halo_particles(IDsnap_id):
 	
 	#txt_amiga = concatenate(array(pool.map(genamigatxt, halo_fn_arr)), axis = 0).T
 	ens = Ensemble.fromfilelist(halo_fn_arr)
-	txt_amiga = concatenate(array(ens.load(genamigatxt)), axis = 0).T
+	ens.load(genamigatxt)
+	txt_amiga = concatenate(array(ens.data), axis = 0).T
 	ID_amiga = txt_amiga[0][txt_amiga[1]==1]
 	
 	def ihalo_ID_position(snap_fn):
