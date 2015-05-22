@@ -16,7 +16,10 @@ from emcee.utils import MPIPool
 home = '/work/02977/jialiu/lenstools_home/'
 storage = '/scratch/02977/jialiu/lenstools_storage/'
 ID_arr = genfromtxt(os.path.join(home, 'realizations.txt'), dtype=str)
+snap_id_arr = (60,)#range(61)
 #ID = 'Om0.300_Ol0.700|512b240|ic1'
+
+pool = MPIPool()
 
 def halo_particles(IDsnap_id):
 	'''
@@ -50,7 +53,7 @@ def halo_particles(IDsnap_id):
 		Positions_HaloParticles = snaps_gadget.getPositions()[idx] 
 		return ID_HaloParticles, Positions_HaloParticles
 	
-	halo_ID_position = map(ihalo_ID_position, snap_fn_arr)
+	halo_ID_position = pool.map(ihalo_ID_position, snap_fn_arr)
 	halo_ID = concatenate([halo_ID_position[i][0] for i in range(len(halo_ID_position))])
 	halo_position = concatenate([halo_ID_position[i][1] for i in range(len(halo_ID_position))], axis=0)
 	
@@ -64,6 +67,5 @@ def halo_particles(IDsnap_id):
 	### test on laptop
 	#halo_snap.write('snapshots_amiga/snapshot_%03d'%(snap_id), files = len(snap_fn_arr))
 
-pool = MPIPool()
-pool.map(halo_particles, [[ID, snap_id] for ID in ID_arr, snap_id in range(61)])
+pool.map(halo_particles, [[ID, snap_id] for ID in ID_arr, snap_id in snap_id_arr])
 
