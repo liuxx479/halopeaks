@@ -20,6 +20,8 @@ ID_arr = genfromtxt(os.path.join(home, 'realizations.txt'), dtype=str)
 snap_id_arr = (60,)#range(61)
 #ID = 'Om0.300_Ol0.700|512b240|ic1'
 
+genamigatxt = lambda halo_fn: genfromtxt(halo_fn, skiprows=2)
+
 pool = MPIPool()
 
 def halo_particles(IDsnap_id):
@@ -31,6 +33,7 @@ def halo_particles(IDsnap_id):
 	'''
 	ID, snap_id = IDsnap_id
 	cosmo_id,geometry_id, ic_id = ID.split("|")
+	print ID
 	
 	#### file names for gadget snap and AHF particles
 	amiga_dir = os.path.join(storage, cosmo_id, geometry_id, ic_id, 'amiga')
@@ -42,7 +45,7 @@ def halo_particles(IDsnap_id):
 	#halo_fn_arr = glob.glob("*particles")
 	#snap_fn_arr = glob.glob('snapshot_060.*')
 	
-	txt_amiga = concatenate([genfromtxt(halo_fn, skiprows=2) for halo_fn in halo_fn_arr], axis = 0).T
+	txt_amiga = concatenate(array(pool.map(genamigatxt, halo_fn_arr)), axis = 0).T
 	ID_amiga = txt_amiga[0][txt_amiga[1]==1]
 	
 	def ihalo_ID_position(snap_fn):
