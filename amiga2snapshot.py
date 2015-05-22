@@ -38,6 +38,7 @@ def halo_ID_position_fcn(ID_amiga):
 		return ID_HaloParticles, Positions_HaloParticles
 	return ihalo_ID_position_fcn
 
+pool = MPIPool()
 def halo_particles(IDsnap_id):
 	'''
 	input: 
@@ -62,27 +63,23 @@ def halo_particles(IDsnap_id):
 	##### read all the amiga particle files #########
 	ens = Ensemble.fromfilelist(halo_fn_arr)
 	
-	pool = MPIPool()
-	if (pool is not None) and not(pool.is_master()):
+	if not(pool.is_master()):
 		pool.wait()
 		sys.exit(0)
 	
 	ens.load(genamigatxt, pool=pool)
-	pool.close()
 	txt_amiga = concatenate(array(ens.data), axis = 0).T
 	ID_amiga = txt_amiga[0][txt_amiga[1]==1]	
 	
 	##### find all the halo particles in gadget ########
 	ihalo_ID_position_fcn = halo_ID_position_fcn(ID_amiga)
 	ens2 = Ensemble.fromfilelist(snap_fn_arr)
-	
-	pool = MPIPool()
-	if not(pool.is_master():
-		pool.wait()
-		sys.exit(0)
+		
+	#if not(pool.is_master():
+		#pool.wait()
+		#sys.exit(0)
 	
 	ens2.load(ihalo_ID_position_fcn, pool=pool)
-	pool.close()
 	halo_ID_position = ens2.data
 	
 	halo_ID = concatenate([halo_ID_position[i][0] for i in range(len(halo_ID_position))])
