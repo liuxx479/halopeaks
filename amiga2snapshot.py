@@ -21,7 +21,11 @@ ID_arr = genfromtxt(os.path.join(home, 'realizations.txt'), dtype=str)
 snap_id_arr = (60,)#range(61)
 #ID = 'Om0.300_Ol0.700|512b240|ic1'
 
-genamigatxt = lambda halo_fn: genfromtxt(halo_fn, skiprows=2)
+#genamigatxt = lambda halo_fn: genfromtxt(halo_fn, skiprows=2)
+def genamigatxt(halo_fn):
+	print halo_fn
+	return genfromtxt(halo_fn, skiprows=2)
+
 pool = MPIPool()
 
 def halo_particles(IDsnap_id):
