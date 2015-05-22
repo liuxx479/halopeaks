@@ -57,8 +57,8 @@ def halo_particles(IDsnap_id):
 	print ID
 	
 	#### file names for gadget snap and AHF particles
-	amiga_dir = os.path.join(storage, cosmo_id, geometry_id, ic_id, 'amiga')
-	os.system('mkdir -p %s'%(amiga_dir))
+	amiga_dir = os.path.join(storage, cosmo_id, geometry_id, ic_id, 'amiga')	
+	os.system('mkdir -p %s'%(os.path.join(storage, cosmo_id, geometry_id, ic_id, 'snapshots_amiga'))
 	halo_fn_arr = glob.glob(amiga_dir+'/*particle*')
 	snap_fn_arr = glob.glob(os.path.join(storage, cosmo_id, geometry_id, ic_id, 'snapshots/snapshot_%03d.*'%(snap_id)))
 	
@@ -97,7 +97,8 @@ def halo_particles(IDsnap_id):
 	halo_snap.setHeaderInfo(Om0=hg['Om0'], Ode0=hg['Ode0'], w0=hg['w0'], wa=hg['wa'], h=hg['h'], redshift=hg['redshift'], box_size=hg['box_size'])
 	
 	###### write the new snapshot to file ##########
-	halo_snap.write(os.path.join(storage, cosmo_id, geometry_id, ic_id, 'snapshots_amiga/snapshot_%03d.*'%(snap_id)), files = len(snap_fn_arr))
+	new_snap_fn = os.path.join(storage, cosmo_id, geometry_id, ic_id, 'snapshots_amiga/snapshot_%03d'%(snap_id))
+	halo_snap.write(new_snap_fn, files = len(snap_fn_arr)/2)
 
 	### test on laptop
 	#halo_snap.write('snapshots_amiga/snapshot_%03d'%(snap_id), files = len(snap_fn_arr))
