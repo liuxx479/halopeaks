@@ -26,7 +26,6 @@ def genamigatxt(halo_fn):
 	print halo_fn
 	return genfromtxt(halo_fn, skiprows=2)
 
-pool = MPIPool()
 
 def halo_ID_position_fcn(ID_amiga):
 	def ihalo_ID_position_fcn(snap_fn):
@@ -62,19 +61,27 @@ def halo_particles(IDsnap_id):
 	
 	#txt_amiga = concatenate(array(pool.map(genamigatxt, halo_fn_arr)), axis = 0).T
 	ens = Ensemble.fromfilelist(halo_fn_arr)
+	
+	pool = MPIPool()
 	if (pool is not None) and not(pool.is_master()):
 		pool.wait()
 		sys.exit(0)
+	
 	ens.load(genamigatxt, pool=pool)
+	pool.close()
 	txt_amiga = concatenate(array(ens.data), axis = 0).T
 	ID_amiga = txt_amiga[0][txt_amiga[1]==1]	
 	
 	ihalo_ID_position_fcn = halo_ID_position_fcn(ID_amiga)
 	ens2 = Ensemble.fromfilelist(snap_fn_arr)
-	if (pool is not None) and not(pool.is_master()):
+	
+	pool = MPIPool()
+	if not(pool.is_master():
 		pool.wait()
 		sys.exit(0)
+	
 	ens2.load(ihalo_ID_position_fcn, pool=pool)
+	pool.close()
 	halo_ID_position = ens2.data
 	
 	halo_ID = concatenate([halo_ID_position[i][0] for i in range(len(halo_ID_position))])
