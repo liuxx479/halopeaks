@@ -12,6 +12,7 @@ import sys, glob, os
 from lenstools.simulations import Gadget2Snapshot
 from astropy.units import Mpc,m,s
 from emcee.utils import MPIPool
+from lenstools import Ensemble
 
 os.system('ml intel/14.0.1.106; ml mvapich2/2.0b')
 home = '/work/02977/jialiu/lenstools_home/'
@@ -45,7 +46,9 @@ def halo_particles(IDsnap_id):
 	#halo_fn_arr = glob.glob("*particles")
 	#snap_fn_arr = glob.glob('snapshot_060.*')
 	
-	txt_amiga = concatenate(array(pool.map(genamigatxt, halo_fn_arr)), axis = 0).T
+	#txt_amiga = concatenate(array(pool.map(genamigatxt, halo_fn_arr)), axis = 0).T
+	ens = Ensemble.fromfilelist(halo_fn_arr)
+	txt_amiga = concatenate(array(ens.load(genamigatxt)), axis = 0).T
 	ID_amiga = txt_amiga[0][txt_amiga[1]==1]
 	
 	def ihalo_ID_position(snap_fn):
@@ -71,5 +74,5 @@ def halo_particles(IDsnap_id):
 	### test on laptop
 	#halo_snap.write('snapshots_amiga/snapshot_%03d'%(snap_id), files = len(snap_fn_arr))
 print 'start job'
-pool.map(halo_particles, [[ID, snap_id] for ID in ID_arr for snap_id in snap_id_arr])
+map(halo_particles, [[ID, snap_id] for ID in ID_arr for snap_id in snap_id_arr])
 
