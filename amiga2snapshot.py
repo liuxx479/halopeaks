@@ -27,16 +27,16 @@ def genamigatxt(halo_fn):
 	return genfromtxt(halo_fn, skiprows=2)
 
 
-def halo_ID_position_fcn(ID_amiga):
-	def ihalo_ID_position_fcn(snap_fn):
-		print snap_fn
-		snaps_gadget = Gadget2Snapshot.open(snap_fn)
-		ID_gadget = snaps_gadget.getID() 
-		idx = where(in1d (ID_gadget, ID_amiga, assume_unique=1) == True)[0]
-		ID_HaloParticles = ID_gadget[idx]
-		Positions_HaloParticles = snaps_gadget.getPositions()[idx] 
-		return ID_HaloParticles, Positions_HaloParticles
-	return ihalo_ID_position_fcn
+#def halo_ID_position_fcn(ID_amiga):
+	#def ihalo_ID_position_fcn(snap_fn):
+		#print snap_fn
+		#snaps_gadget = Gadget2Snapshot.open(snap_fn)
+		#ID_gadget = snaps_gadget.getID() 
+		#idx = where(in1d (ID_gadget, ID_amiga, assume_unique=1) == True)[0]
+		#ID_HaloParticles = ID_gadget[idx]
+		#Positions_HaloParticles = snaps_gadget.getPositions()[idx] 
+		#return ID_HaloParticles, Positions_HaloParticles
+	#return ihalo_ID_position_fcn
 
 pool = MPIPool()
 if not(pool.is_master()):
@@ -65,16 +65,22 @@ def halo_particles(IDsnap_id):
 	#snap_fn_arr = glob.glob('snapshot_060.*')
 	
 	##### read all the amiga particle files #########
-	ens = Ensemble.fromfilelist(halo_fn_arr)
-	
+	ens = Ensemble.fromfilelist(halo_fn_arr)	
 	ens.load(genamigatxt, pool=pool)
 	txt_amiga = concatenate(array(ens.data), axis = 0).T
 	ID_amiga = txt_amiga[0][txt_amiga[1]==1]	
 	
 	##### find all the halo particles in gadget ########
-	ihalo_ID_position_fcn = halo_ID_position_fcn(ID_amiga)
-	ens2 = Ensemble.fromfilelist(snap_fn_arr)
-	
+	def ihalo_ID_position_fcn(snap_fn):
+		print snap_fn
+		snaps_gadget = Gadget2Snapshot.open(snap_fn)
+		ID_gadget = snaps_gadget.getID() 
+		idx = where(in1d (ID_gadget, ID_amiga, assume_unique=1) == True)[0]
+		ID_HaloParticles = ID_gadget[idx]
+		Positions_HaloParticles = snaps_gadget.getPositions()[idx] 
+		return ID_HaloParticles, Positions_HaloParticles
+	#ihalo_ID_position_fcn = halo_ID_position_fcn(ID_amiga)
+	ens2 = Ensemble.fromfilelist(snap_fn_arr)	
 	ens2.load(ihalo_ID_position_fcn, pool=pool)
 	halo_ID_position = ens2.data
 	
