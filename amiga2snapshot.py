@@ -4,7 +4,7 @@
 # Then match the IDs, and keep only particles in gadget2
 # Create new snapshots that contains only halo particles
 
-import WLanalysis
+#import WLanalysis
 import numpy as np
 from scipy import *
 import sys, glob, os
