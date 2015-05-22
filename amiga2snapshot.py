@@ -8,7 +8,7 @@
 import numpy as np
 from scipy import *
 import sys, glob, os
-sys.modules["mpi4py"] = None
+#sys.modules["mpi4py"] = None
 from lenstools.simulations import Gadget2Snapshot
 from astropy.units import Mpc,m,s
 from emcee.utils import MPIPool
