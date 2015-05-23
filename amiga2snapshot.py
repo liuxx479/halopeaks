@@ -29,9 +29,9 @@ def genamigatxt(halo_fn):
 
 pool = MPIPool()
 
-if not(pool.is_master()):
-	pool.wait()
-	sys.exit(0)
+#if not(pool.is_master()):
+	#pool.wait()
+	#sys.exit(0)
 
 def halo_particles(IDsnap_id):
 	'''
