@@ -47,7 +47,7 @@ def halo_particles(IDsnap_id):
 	#### file names for gadget snap and AHF particles
 	amiga_dir = os.path.join(storage, cosmo_id, geometry_id, ic_id, 'amiga')	
 	os.system('mkdir -p %s'%(os.path.join(storage, cosmo_id, geometry_id, ic_id, 'snapshots_amiga')))
-	halo_fn_arr = glob.glob(amiga_dir+'/*particle*')
+	halo_fn_arr = glob.glob(amiga_dir+'/snap%i*particle*'%(snap_id))
 	snap_fn_arr = glob.glob(os.path.join(storage, cosmo_id, geometry_id, ic_id, 'snapshots/snapshot_%03d.*'%(snap_id)))
 	
 	##### test on laptop #####
