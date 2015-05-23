@@ -5,7 +5,7 @@ import sys
 snap_ID = int(sys.argv[1])
 ##################
 
-f = open('amigatest.txt','w')#open('/work/02977/jialiu/lenstools_home/amiga.ini', 'w')
+f = open('/work/02977/jialiu/lenstools_home/amiga.ini', 'w')#open('amigatest.txt','w')#
 content = '''[AHF]
 
 # (stem of the) filename from which to read the data to be analysed
