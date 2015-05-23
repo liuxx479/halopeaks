@@ -19,25 +19,13 @@ os.system('ml intel/14.0.1.106; ml mvapich2/2.0b')
 home = '/work/02977/jialiu/lenstools_home/'
 storage = '/scratch/02977/jialiu/lenstools_storage/'
 ID_arr = genfromtxt(os.path.join(home, 'realizations.txt'), dtype=str)
-snap_id_arr = (60,)#range(61)
+snap_id_arr = range(60)
 #ID = 'Om0.300_Ol0.700|512b240|ic1'
 
 #genamigatxt = lambda halo_fn: genfromtxt(halo_fn, skiprows=2)
 def genamigatxt(halo_fn):
 	print halo_fn
 	return genfromtxt(halo_fn, skiprows=2)
-
-
-#def halo_ID_position_fcn(ID_amiga):
-	#def ihalo_ID_position_fcn(snap_fn):
-		#print snap_fn
-		#snaps_gadget = Gadget2Snapshot.open(snap_fn)
-		#ID_gadget = snaps_gadget.getID() 
-		#idx = where(in1d (ID_gadget, ID_amiga, assume_unique=1) == True)[0]
-		#ID_HaloParticles = ID_gadget[idx]
-		#Positions_HaloParticles = snaps_gadget.getPositions()[idx] 
-		#return ID_HaloParticles, Positions_HaloParticles
-	#return ihalo_ID_position_fcn
 
 pool = MPIPool()
 
