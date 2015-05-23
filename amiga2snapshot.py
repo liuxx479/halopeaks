@@ -14,12 +14,12 @@ from astropy.units import Mpc,m,s
 from emcee.utils import MPIPool
 #from lenstools import Ensemble
 
-#os.system('ml intel/14.0.1.106; ml mvapich2/2.0b')
+os.system('ml intel/14.0.1.106; ml mvapich2/2.0b')
 
 home = '/work/02977/jialiu/lenstools_home/'
 storage = '/scratch/02977/jialiu/lenstools_storage/'
 ID_arr = genfromtxt(os.path.join(home, 'realizations.txt'), dtype=str)
-snap_id_arr = range(60)
+snap_id_arr = (59,)#range(60)
 #ID = 'Om0.300_Ol0.700|512b240|ic1'
 
 #genamigatxt = lambda halo_fn: genfromtxt(halo_fn, skiprows=2)
@@ -29,9 +29,9 @@ def genamigatxt(halo_fn):
 
 pool = MPIPool()
 
-#if not(pool.is_master()):
-	#pool.wait()
-	#sys.exit(0)
+if not(pool.is_master()):
+	pool.wait()
+	sys.exit(0)
 
 def halo_particles(IDsnap_id):
 	'''
