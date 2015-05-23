@@ -44,52 +44,55 @@ def halo_particles(IDsnap_id):
 	cosmo_id,geometry_id, ic_id = ID.split("|")
 	print ID
 	
-	#### file names for gadget snap and AHF particles
-	amiga_dir = os.path.join(storage, cosmo_id, geometry_id, ic_id, 'amiga')	
-	os.system('mkdir -p %s'%(os.path.join(storage, cosmo_id, geometry_id, ic_id, 'snapshots_amiga')))
-	halo_fn_arr = glob.glob(amiga_dir+'/snap%i*particle*'%(snap_id))
-	snap_fn_arr = glob.glob(os.path.join(storage, cosmo_id, geometry_id, ic_id, 'snapshots/snapshot_%03d.*'%(snap_id)))
-	
-	##### test on laptop #####
-	#halo_fn_arr = glob.glob("*particles")
-	#snap_fn_arr = glob.glob('snapshot_060.*')
-	
-	##### read all the amiga particle files #########
-	#ens = Ensemble.fromfilelist(halo_fn_arr)	
-	#ens.load(genamigatxt, pool=pool)
-	#txt_amiga = concatenate(array(ens.data), axis = 0).T
-	txt_amiga = concatenate(array(map(genamigatxt, halo_fn_arr)), axis = 0).T
-	ID_amiga = txt_amiga[0][txt_amiga[1]==1]	
-	
-	##### find all the halo particles in gadget ########
-	def ihalo_ID_position_fcn(snap_fn):
-		print snap_fn
-		snaps_gadget = Gadget2Snapshot.open(snap_fn)
-		ID_gadget = snaps_gadget.getID() 
-		idx = where(in1d (ID_gadget, ID_amiga, assume_unique=1) == True)[0]
-		ID_HaloParticles = ID_gadget[idx]
-		Positions_HaloParticles = snaps_gadget.getPositions()[idx] 
-		return ID_HaloParticles, Positions_HaloParticles
-	#ens2 = Ensemble.fromfilelist(snap_fn_arr)	
-	#ens2.load(ihalo_ID_position_fcn, pool=pool)
-	#halo_ID_position = ens2.data
-	halo_ID_position = map(ihalo_ID_position_fcn, snap_fn_arr)
-	
-	halo_ID = concatenate([halo_ID_position[i][0] for i in range(len(halo_ID_position))])
-	halo_position = concatenate([halo_ID_position[i][1] for i in range(len(halo_ID_position))], axis=0)
-	
-	###### create new gadget snapshot ############
-	halo_snap = Gadget2Snapshot()
-	hg = Gadget2Snapshot.open(snap_fn_arr[0]).header #header_gadget
-	halo_snap.setPositions(array(halo_position)*Mpc)	
-	halo_snap.setHeaderInfo(Om0=hg['Om0'], Ode0=hg['Ode0'], w0=hg['w0'], wa=hg['wa'], h=hg['h'], redshift=hg['redshift'], box_size=hg['box_size'])
-	
-	###### write the new snapshot to file ##########
 	new_snap_fn = os.path.join(storage, cosmo_id, geometry_id, ic_id, 'snapshots_amiga/snapshot_%03d'%(snap_id))
-	halo_snap.write(new_snap_fn, files = len(snap_fn_arr)/2)
+	
+	if not os.path.isfile(new_snap_fn+'.0'):
+		#### file names for gadget snap and AHF particles
+		amiga_dir = os.path.join(storage, cosmo_id, geometry_id, ic_id, 'amiga')	
+		os.system('mkdir -p %s'%(os.path.join(storage, cosmo_id, geometry_id, ic_id, 'snapshots_amiga')))
+		halo_fn_arr = glob.glob(amiga_dir+'/snap%i*particle*'%(snap_id))
+		snap_fn_arr = glob.glob(os.path.join(storage, cosmo_id, geometry_id, ic_id, 'snapshots/snapshot_%03d.*'%(snap_id)))
+		
+		##### test on laptop #####
+		#halo_fn_arr = glob.glob("*particles")
+		#snap_fn_arr = glob.glob('snapshot_060.*')
+		
+		##### read all the amiga particle files #########
+		#ens = Ensemble.fromfilelist(halo_fn_arr)	
+		#ens.load(genamigatxt, pool=pool)
+		#txt_amiga = concatenate(array(ens.data), axis = 0).T
+		txt_amiga = concatenate(array(map(genamigatxt, halo_fn_arr)), axis = 0).T
+		ID_amiga = txt_amiga[0][txt_amiga[1]==1]	
+		
+		##### find all the halo particles in gadget ########
+		def ihalo_ID_position_fcn(snap_fn):
+			print snap_fn
+			snaps_gadget = Gadget2Snapshot.open(snap_fn)
+			ID_gadget = snaps_gadget.getID() 
+			idx = where(in1d (ID_gadget, ID_amiga, assume_unique=1) == True)[0]
+			ID_HaloParticles = ID_gadget[idx]
+			Positions_HaloParticles = snaps_gadget.getPositions()[idx] 
+			return ID_HaloParticles, Positions_HaloParticles
+		#ens2 = Ensemble.fromfilelist(snap_fn_arr)	
+		#ens2.load(ihalo_ID_position_fcn, pool=pool)
+		#halo_ID_position = ens2.data
+		halo_ID_position = map(ihalo_ID_position_fcn, snap_fn_arr)
+		
+		halo_ID = concatenate([halo_ID_position[i][0] for i in range(len(halo_ID_position))])
+		halo_position = concatenate([halo_ID_position[i][1] for i in range(len(halo_ID_position))], axis=0)
+		
+		###### create new gadget snapshot ############
+		halo_snap = Gadget2Snapshot()
+		hg = Gadget2Snapshot.open(snap_fn_arr[0]).header #header_gadget
+		halo_snap.setPositions(array(halo_position)*Mpc)	
+		halo_snap.setHeaderInfo(Om0=hg['Om0'], Ode0=hg['Ode0'], w0=hg['w0'], wa=hg['wa'], h=hg['h'], redshift=hg['redshift'], box_size=hg['box_size'])
+		
+		###### write the new snapshot to file ##########
+		
+		halo_snap.write(new_snap_fn, files = len(snap_fn_arr)/2)
 
-	### test on laptop
-	#halo_snap.write('snapshots_amiga/snapshot_%03d'%(snap_id), files = len(snap_fn_arr))
+		### test on laptop
+		#halo_snap.write('snapshots_amiga/snapshot_%03d'%(snap_id), files = len(snap_fn_arr))
 
 
 print 'start job'
