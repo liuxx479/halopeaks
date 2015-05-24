@@ -29,20 +29,9 @@ genamigatxt = lambda halo_fn: genfromtxt(halo_fn, skiprows=2)
 
 pool = MPIPool()
 
-if not(pool.is_master()):
-	pool.wait()
-	sys.exit(0)
-
-def halo_ID_position_fcn(ID_amiga):
-	def ihalo_ID_position_fcn(snap_fn):
-		print snap_fn
-		snaps_gadget = Gadget2Snapshot.open(snap_fn)
-		ID_gadget = snaps_gadget.getID() 
-		idx = where(in1d (ID_gadget, ID_amiga, assume_unique=1) == True)[0]
-		ID_HaloParticles = ID_gadget[idx]
-		Positions_HaloParticles = snaps_gadget.getPositions()[idx] 
-		return ID_HaloParticles, Positions_HaloParticles
-	return ihalo_ID_position_fcn
+#if not(pool.is_master()):
+	#pool.wait()
+	#sys.exit(0)
 
 def halo_particles(IDsnap_id):
 	'''
@@ -69,19 +58,28 @@ def halo_particles(IDsnap_id):
 		#snap_fn_arr = glob.glob('snapshot_060.*')
 		
 		##### read all the amiga particle files #########
-		ens = Ensemble.fromfilelist(halo_fn_arr)	
-		ens.load(genamigatxt, pool=pool)
-		txt_amiga = concatenate(array(ens.data), axis = 0).T
-		#txt_amiga = concatenate(array(map(genamigatxt, halo_fn_arr)), axis = 0).T
+		#ens = Ensemble.fromfilelist(halo_fn_arr)	
+		#ens.load(genamigatxt, pool=pool)
+		#txt_amiga = concatenate(array(ens.data), axis = 0).T
+		txt_amiga = concatenate(array(map(genamigatxt, halo_fn_arr)), axis = 0).T
 		ID_amiga = txt_amiga[0][txt_amiga[1]==1]	
 		
 		##### find all the halo particles in gadget ########
 		
-		ihalo_ID_position_fcn = halo_ID_position_fcn(ID_amiga)
-		ens2 = Ensemble.fromfilelist(snap_fn_arr)	
-		ens2.load(ihalo_ID_position_fcn, pool=pool)
-		halo_ID_position = ens2.data
-		#halo_ID_position = map(ihalo_ID_position_fcn, snap_fn_arr)
+		def ihalo_ID_position_fcn(snap_fn):
+			print snap_fn
+			snaps_gadget = Gadget2Snapshot.open(snap_fn)
+			ID_gadget = snaps_gadget.getID() 
+			idx = where(in1d (ID_gadget, ID_amiga, assume_unique=1) == True)[0]
+			ID_HaloParticles = ID_gadget[idx]
+			Positions_HaloParticles = snaps_gadget.getPositions()[idx] 
+			return ID_HaloParticles, Positions_HaloParticles
+		
+		#ihalo_ID_position_fcn = halo_ID_position_fcn(ID_amiga)
+		#ens2 = Ensemble.fromfilelist(snap_fn_arr)	
+		#ens2.load(ihalo_ID_position_fcn, pool=pool)
+		#halo_ID_position = ens2.data
+		halo_ID_position = map(ihalo_ID_position_fcn, snap_fn_arr)
 		
 		halo_ID = concatenate([halo_ID_position[i][0] for i in range(len(halo_ID_position))])
 		halo_position = concatenate([halo_ID_position[i][1] for i in range(len(halo_ID_position))], axis=0)
@@ -99,8 +97,7 @@ def halo_particles(IDsnap_id):
 		### test on laptop
 		#halo_snap.write('snapshots_amiga/snapshot_%03d'%(snap_id), files = len(snap_fn_arr))
 
-
 print 'start job'
-map(halo_particles, [[ID, snap_id] for ID in ID_arr for snap_id in snap_id_arr])
+map(halo_particles, [[ID, snap_id] for ID in ID_arr for snap_id in snap_id_arr[::-1]])
 #pool.map(halo_particles, [[ID, snap_id] for ID in ID_arr for snap_id in snap_id_arr])
 #pool.close()
