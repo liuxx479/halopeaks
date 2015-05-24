@@ -92,12 +92,33 @@ def halo_particles(IDsnap_id):
 		
 		###### write the new snapshot to file ##########
 		
-		halo_snap.write(new_snap_fn, files = len(snap_fn_arr)/2)
+		halo_snap.write(new_snap_fn, files = len(snap_fn_arr))
 
 		### test on laptop
 		#halo_snap.write('snapshots_amiga/snapshot_%03d'%(snap_id), files = len(snap_fn_arr))
 
 print 'start job'
-#map(halo_particles, [[ID, snap_id] for ID in ID_arr for snap_id in snap_id_arr[::-1]])
-pool.map(halo_particles, [[ID, snap_id] for ID in ID_arr for snap_id in snap_id_arr])
+#pool.map(halo_particles, [[ID, snap_id] for ID in ID_arr for snap_id in snap_id_arr])
+
+
+def snapposition (fn):
+	snap = Gadget2Snapshot.open(fn)
+	return snap.getPositions()
+
+def reorganize_snaps (IDsnap_id):
+	ID, snap_id = IDsnap_id
+	cosmo_id,geometry_id, ic_id = ID.split("|")
+	new_snap_fn = os.path.join(storage, cosmo_id, geometry_id, ic_id, 'snapshots_amiga/snapshot_%03d'%(snap_id))
+	os.system('mkdir -p %s'%(os.path.join(storage, cosmo_id, geometry_id, ic_id, 'snapshots_amiga')))
+	
+	amiga8_arr = glob.glob(os.path.join(storage, cosmo_id, geometry_id, ic_id, 'snapshots_amiga8_%03d.*'%(snap_id)))
+	position_arr = concatenate(array(map(snapposition, amiga8_arr)),axis=0)
+	
+	halo_snap = Gadget2Snapshot()
+	hg = Gadget2Snapshot.open(amiga8_arr).header
+	halo_snap.setPositions(array(halo_position)*Mpc)
+	halo_snap.setHeaderInfo(Om0=hg['Om0'], Ode0=hg['Ode0'], w0=hg['w0'], wa=hg['wa'], h=hg['h'], redshift=hg['redshift'], box_size=hg['box_size'])
+	halo_snap.write(new_snap_fn, files = 16)
+
+pool.map(reorganize_snaps, [[ID, snap_id] for ID in ID_arr for snap_id in snap_id_arr])
 pool.close()
