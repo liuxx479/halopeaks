@@ -112,7 +112,7 @@ def reorganize_snaps (IDsnap_id):
 	os.system('mkdir -p %s'%(os.path.join(storage, cosmo_id, geometry_id, ic_id, 'snapshots_amiga')))
 	
 	amiga8_arr = glob.glob(os.path.join(storage, cosmo_id, geometry_id, ic_id, 'snapshots_amiga8/snapshot_%03d.*'%(snap_id)))
-	position_arr = concatenate(array(map(snapposition, amiga8_arr)),axis=0)
+	halo_position = concatenate(array(map(snapposition, amiga8_arr)),axis=0)
 	
 	halo_snap = Gadget2Snapshot()
 	hg = Gadget2Snapshot.open(amiga8_arr[0]).header
