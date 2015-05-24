@@ -33,7 +33,7 @@ if not(pool.is_master()):
 	pool.wait()
 	sys.exit(0)
 
-def halo_ID_position_fcn(ID_amiga)
+def halo_ID_position_fcn(ID_amiga):
 	def ihalo_ID_position_fcn(snap_fn):
 		print snap_fn
 		snaps_gadget = Gadget2Snapshot.open(snap_fn)
