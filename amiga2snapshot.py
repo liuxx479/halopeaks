@@ -12,7 +12,7 @@ import sys, glob, os
 from lenstools.simulations import Gadget2Snapshot
 from astropy.units import Mpc,m,s
 from emcee.utils import MPIPool
-#from lenstools import Ensemble
+from lenstools import Ensemble
 
 os.system('ml intel/14.0.1.106; ml mvapich2/2.0b')
 
