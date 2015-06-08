@@ -24,7 +24,7 @@ snap_id_arr = range(60)
 
 #genamigatxt = lambda halo_fn: genfromtxt(halo_fn, skiprows=2)
 def genamigatxt(halo_fn):
-	print halo_fn
+	print 'AMIGA', halo_fn
 	return genfromtxt(halo_fn, skiprows=2)
 
 pool = MPIPool()
@@ -64,7 +64,8 @@ def halo_particles(IDsnap_id):
 		##### find all the halo particles in gadget ########
 		
 		def ihalo_ID_position_fcn(snap_fn):
-			print snap_fn
+			'''snap_fn is the gadget snapshot file'''
+			print 'GADGET', snap_fn
 			snaps_gadget = Gadget2Snapshot.open(snap_fn)
 			ID_gadget = snaps_gadget.getID() 
 			idx = where(in1d (ID_gadget, ID_amiga, assume_unique=1) == True)[0]
@@ -91,7 +92,7 @@ def halo_particles(IDsnap_id):
 		#halo_snap.write('snapshots_amiga/snapshot_%03d'%(snap_id), files = len(snap_fn_arr))
 
 print 'start job'
-pool.map(halo_particles, [[ID, snap_id] for ID in ID_arr for snap_id in snap_id_arr])
+pool.map(halo_particles, [[ID, snap_id] for ID in ID_arr for snap_id in snap_id_arr[::-1]])
 
 
 ################ there're problems if only 8 amiga files, so re-write into 16 files ############
