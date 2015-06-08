@@ -12,7 +12,7 @@ import sys, glob, os
 from lenstools.simulations import Gadget2Snapshot
 from astropy.units import Mpc,m,s
 from emcee.utils import MPIPool
-from lenstools import Ensemble
+#from lenstools import Ensemble
 
 os.system('ml intel/14.0.1.106; ml mvapich2/2.0b')
 
@@ -51,16 +51,13 @@ def halo_particles(IDsnap_id):
 		amiga_dir = os.path.join(storage, cosmo_id, geometry_id, ic_id, 'amiga')	
 		os.system('mkdir -p %s'%(os.path.join(storage, cosmo_id, geometry_id, ic_id, 'snapshots_amiga')))
 		halo_fn_arr = glob.glob(amiga_dir+'/snap%i*particle*'%(snap_id))
-		snap_fn_arr = glob.glob(os.path.join(storage, cosmo_id, geometry_id, ic_id, 'snapshots/snapshot_%03d.*'%(snap_id)))
+		snap_fn_arr = glob.glob(os.path.join(storage, cosmo_id, geometry_id, ic_id, 'snapshots_gadget/snapshot_%03d.*'%(snap_id)))
 		
 		##### test on laptop #####
 		#halo_fn_arr = glob.glob("*particles")
 		#snap_fn_arr = glob.glob('snapshot_060.*')
 		
 		##### read all the amiga particle files #########
-		#ens = Ensemble.fromfilelist(halo_fn_arr)	
-		#ens.load(genamigatxt, pool=pool)
-		#txt_amiga = concatenate(array(ens.data), axis = 0).T
 		txt_amiga = concatenate(array(map(genamigatxt, halo_fn_arr)), axis = 0).T
 		ID_amiga = txt_amiga[0][txt_amiga[1]==1]	
 		
@@ -75,10 +72,6 @@ def halo_particles(IDsnap_id):
 			Positions_HaloParticles = snaps_gadget.getPositions()[idx] 
 			return ID_HaloParticles, Positions_HaloParticles
 		
-		#ihalo_ID_position_fcn = halo_ID_position_fcn(ID_amiga)
-		#ens2 = Ensemble.fromfilelist(snap_fn_arr)	
-		#ens2.load(ihalo_ID_position_fcn, pool=pool)
-		#halo_ID_position = ens2.data
 		halo_ID_position = map(ihalo_ID_position_fcn, snap_fn_arr)
 		
 		halo_ID = concatenate([halo_ID_position[i][0] for i in range(len(halo_ID_position))])
@@ -87,7 +80,7 @@ def halo_particles(IDsnap_id):
 		###### create new gadget snapshot ############
 		halo_snap = Gadget2Snapshot()
 		hg = Gadget2Snapshot.open(snap_fn_arr[0]).header #header_gadget
-		halo_snap.setPositions(array(halo_position)*Mpc)	
+		halo_snap.setPositions(array(halo_position)*halo_ID_position[0][1].unit)	
 		halo_snap.setHeaderInfo(Om0=hg['Om0'], Ode0=hg['Ode0'], w0=hg['w0'], wa=hg['wa'], h=hg['h'], redshift=hg['redshift'], box_size=hg['box_size'])
 		
 		###### write the new snapshot to file ##########
@@ -98,9 +91,10 @@ def halo_particles(IDsnap_id):
 		#halo_snap.write('snapshots_amiga/snapshot_%03d'%(snap_id), files = len(snap_fn_arr))
 
 print 'start job'
-#pool.map(halo_particles, [[ID, snap_id] for ID in ID_arr for snap_id in snap_id_arr])
+pool.map(halo_particles, [[ID, snap_id] for ID in ID_arr for snap_id in snap_id_arr])
 
 
+################ there're problems if only 8 amiga files, so re-write into 16 files ############
 def snapposition (fn):
 	snap = Gadget2Snapshot.open(fn)
 	return snap.getPositions()
@@ -120,5 +114,5 @@ def reorganize_snaps (IDsnap_id):
 	halo_snap.setHeaderInfo(Om0=hg['Om0'], Ode0=hg['Ode0'], w0=hg['w0'], wa=hg['wa'], h=hg['h'], redshift=hg['redshift'], box_size=hg['box_size'])
 	halo_snap.write(new_snap_fn, files = 16)
 
-pool.map(reorganize_snaps, [[ID, snap_id] for ID in ID_arr for snap_id in snap_id_arr])
+#pool.map(reorganize_snaps, [[ID, snap_id] for ID in ID_arr for snap_id in snap_id_arr])
 pool.close()
