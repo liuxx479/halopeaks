@@ -87,12 +87,12 @@ def halo_particles(IDsnap_id):
 		###### write the new snapshot to file ##########
 		
 		halo_snap.write(new_snap_fn, files = len(snap_fn_arr))
-
+		print "WROTE", new_snap_fn
 		### test on laptop
 		#halo_snap.write('snapshots_amiga/snapshot_%03d'%(snap_id), files = len(snap_fn_arr))
 
 print 'start job'
-pool.map(halo_particles, [[ID, snap_id] for ID in ID_arr for snap_id in snap_id_arr[::-1]])
+pool.map(halo_particles, [[ID, snap_id] for ID in ID_arr for snap_id in snap_id_arr])
 
 
 ################ there're problems if only 8 amiga files, so re-write into 16 files ############
