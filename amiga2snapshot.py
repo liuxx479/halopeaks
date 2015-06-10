@@ -14,7 +14,7 @@ from astropy.units import Mpc,m,s
 from emcee.utils import MPIPool
 #from lenstools import Ensemble
 
-os.system('ml intel/14.0.1.106; ml mvapich2/2.0b')
+#os.system('ml intel/14.0.1.106; ml mvapich2/2.0b')
 
 home = '/work/02977/jialiu/lenstools_home/'
 storage = '/scratch/02977/jialiu/lenstools_storage/'
@@ -29,9 +29,9 @@ def genamigatxt(halo_fn):
 
 pool = MPIPool()
 
-if not(pool.is_master()):
-	pool.wait()
-	sys.exit(0)
+#if not(pool.is_master()):
+	#pool.wait()
+	#sys.exit(0)
 
 def halo_particles(IDsnap_id):
 	'''
@@ -116,4 +116,4 @@ def reorganize_snaps (IDsnap_id):
 	halo_snap.write(new_snap_fn, files = 16)
 
 #pool.map(reorganize_snaps, [[ID, snap_id] for ID in ID_arr for snap_id in snap_id_arr])
-pool.close()
+#pool.close()
