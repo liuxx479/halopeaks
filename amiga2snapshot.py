@@ -45,7 +45,7 @@ def halo_particles(IDsnap_id):
 	
 	new_snap_fn = os.path.join(storage, cosmo_id, geometry_id, ic_id, 'snapshots_amiga/snapshot_%03d'%(snap_id))
 	print new_snap_fn
-	if not os.path.isfile(new_snap_fn+'.0'):
+	if len(glob.glob(new_snap_fn+'.0*'))<16:
 		print 'file doesnt exist:', new_snap_fn+'.0'
 		#### file names for gadget snap and AHF particles
 		amiga_dir = os.path.join(storage, cosmo_id, geometry_id, ic_id, 'amiga')	
